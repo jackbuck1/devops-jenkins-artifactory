@@ -1,0 +1,20 @@
+//START-OF-SCRIPT
+node {
+    def server = Artifactory.server 'artifactory'
+
+    withCredentials([usernamePassword(credentialsId: 'artifactory',
+                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+        server.username = "${USERNAME}"
+        server.password = "${PASSWORD}"
+    }
+
+    def rtGradle = Artifactory.newGradleBuild()
+    def buildInfo
+
+    stage('Clone') {
+        git branch: 'artifactory', url: 'https://github.com/cloudacademy/devops-webapp.git'
+    }
+
+    stage('Artifactory Configuration') {
+        rtGradle.tool = "gradle" // Name of the Gradle tool configured in Jenkins
+        rtGradle.deployer repo: 'gradle-release-local', server: se
